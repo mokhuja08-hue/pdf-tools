@@ -1,18 +1,474 @@
-<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>PDF Tools v3</title>
-<style>*{box-sizing:border-box}body{background:#008080;font:14px "MS Sans Serif",Tahoma,Arial;margin:0;padding:24px}.win{max-width:720px;margin:auto;background:#c0c0c0;border:2px outset #fff;box-shadow:3px 3px #000}.bar{background:#000080;color:#fff;font-weight:bold;padding:6px}.body{padding:16px}.box{border:2px inset #fff;padding:15px;margin-bottom:15px}h3{margin:0 0 10px}button{background:#c0c0c0;border:2px outset #fff;padding:6px 12px;font:inherit}button:active{border-style:inset}.list{background:#fff;border:2px inset #fff;min-height:45px;margin:8px 0;padding:4px}.row{display:flex;gap:5px;align-items:center;padding:4px;border-bottom:1px dotted #aaa}.name{flex:1}.msg{background:#ffffcc;border:1px solid;padding:9px;margin-bottom:12px}.small{font-size:12px}input[type=file]{width:100%;margin-bottom:8px}</style></head>
-<body><div class="win"><div class="bar">PDF Tools v3.0　　_ □ ×</div><div class="body">
-{% with m=get_flashed_messages() %}{% for x in m %}<div class="msg">{{x}}</div>{% endfor %}{% endwith %}
-<div class="box"><h3>1. Merge Files</h3><p>PDF + PNG + JPG/JPEG</p><form action="/merge" method="post" enctype="multipart/form-data"><input id="mi" name="files" type="file" multiple accept=".pdf,.png,.jpg,.jpeg" required><input id="fo" name="file_order" type="hidden"><div id="ml" class="list">Choose files.</div><button>Merge Files</button></form></div>
-<div class="box"><h3>2. Compress PDF</h3><form action="/compress" method="post" enctype="multipart/form-data"><input name="pdf" type="file" accept=".pdf" required><label><input type="radio" name="quality" value="printer"> High Quality</label><br><label><input type="radio" name="quality" value="ebook" checked> Balanced</label><br><label><input type="radio" name="quality" value="screen"> Smallest File</label><br><br><button>Compress PDF</button></form></div>
-<div class="box"><h3>3. Organize Pages</h3><p>Reorder, rotate, duplicate or delete pages.</p><form id="of" action="/organize" method="post" enctype="multipart/form-data"><input id="oi" name="pdf" type="file" accept=".pdf" required><input id="ops" name="operations" type="hidden"><button id="load" type="button">Load Pages</button><div id="pl" class="list">Choose a PDF, then Load Pages.</div><button>Save Organized PDF</button></form></div>
-<div class="small">PDF Tools v3.0</div></div></div>
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PDF Tools v4</title>
+<style>
+:root{
+  --bg:#020402;
+  --panel:#030803;
+  --line:#174d17;
+  --green:#52ff52;
+  --green2:#25c925;
+  --muted:#74a774;
+  --glow:0 0 8px rgba(82,255,82,.35);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#000;color:var(--green)}
+body{
+  font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+  background:
+    linear-gradient(rgba(0,20,0,.78),rgba(0,0,0,.96)),
+    repeating-linear-gradient(0deg,rgba(30,255,30,.025) 0,rgba(30,255,30,.025) 1px,transparent 1px,transparent 4px);
+}
+.layout{display:grid;grid-template-columns:290px 1fr;min-height:100vh}
+.sidebar{
+  border-right:1px solid var(--line);
+  padding:22px 14px;
+  position:sticky;top:0;height:100vh;
+  background:linear-gradient(180deg,#010501,#000);
+}
+.brand{font-size:28px;font-weight:800;letter-spacing:1px;text-shadow:var(--glow)}
+.sub{font-size:12px;margin-top:7px}
+.box{
+  border:1px solid var(--line);
+  margin-top:20px;
+  background:rgba(0,8,0,.6);
+}
+.box-title{padding:11px 14px;border-bottom:1px solid var(--line);font-weight:700}
+.menu-item{padding:13px 14px;border-bottom:1px solid rgba(23,77,23,.55);cursor:pointer}
+.menu-item:hover{background:#071207}
+.info{padding:14px;line-height:1.8;font-size:12px}
+.matrix{
+  height:220px;
+  overflow:hidden;
+  opacity:.32;
+  padding:10px;
+  font-size:11px;
+  line-height:1.15;
+  word-break:break-all;
+}
+.main{padding:24px}
+.topbar{display:flex;justify-content:flex-end;gap:18px;font-size:12px;margin-bottom:12px}
+.module{
+  border:1px solid var(--line);
+  background:rgba(0,5,0,.76);
+  margin-bottom:16px;
+  padding:18px;
+}
+.module h2{margin:0 0 5px;font-size:21px;text-shadow:var(--glow)}
+.desc{font-size:12px;margin-bottom:15px;color:var(--green)}
+.drop{
+  border:1px dashed var(--green2);
+  min-height:145px;
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  cursor:pointer;
+  background:#000;
+  margin-bottom:14px;
+}
+.drop.drag{background:#061506;box-shadow:inset 0 0 25px rgba(82,255,82,.12)}
+.upload-symbol{font-size:42px;line-height:1;margin-bottom:8px}
+input[type=file]{display:none}
+button,.btn{
+  background:#010701;color:var(--green);
+  border:1px solid var(--green2);
+  font:inherit;
+  padding:10px 14px;
+  cursor:pointer;
+}
+button:hover,.btn:hover{background:#0b210b;box-shadow:var(--glow)}
+.primary{background:var(--green2);color:#001400;font-weight:800}
+.primary:hover{background:var(--green)}
+.toolbar{display:flex;justify-content:flex-end;gap:8px;margin:10px 0}
+.table{
+  border:1px solid var(--line);
+  min-height:70px;
+}
+.row{
+  display:grid;
+  grid-template-columns:45px minmax(180px,1fr) 100px 100px 175px;
+  gap:6px;
+  align-items:center;
+  padding:9px 10px;
+  border-bottom:1px solid rgba(23,77,23,.65);
+  font-size:12px;
+}
+.head{background:#061006;font-weight:700}
+.row:last-child{border-bottom:0}
+.empty{padding:22px;text-align:center;color:var(--muted);font-size:12px}
+.actions{display:flex;gap:5px}
+.mini{padding:5px 8px}
+.compress-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:15px}
+.choice{border:1px solid var(--line);padding:15px;cursor:pointer;min-height:98px}
+.choice.active{border-color:var(--green);background:#071407;box-shadow:var(--glow)}
+.choice input{margin-right:10px}
+.filebar{display:flex;gap:10px;align-items:center}
+.filepick{flex:1;border:1px solid var(--line);min-height:44px;display:flex;align-items:center;padding:6px}
+.filename{margin-left:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.status{
+  margin-top:14px;
+  border:1px solid var(--line);
+  padding:10px 12px;
+  font-size:12px;
+  min-height:38px;
+}
+.status.error{border-color:#8f3d3d;color:#ff7777}
+.status.ok{border-color:var(--green2)}
+.progress{height:3px;background:#062206;margin-top:8px;overflow:hidden;display:none}
+.progress span{display:block;height:100%;width:35%;background:var(--green);animation:p 1.2s linear infinite}
+@keyframes p{from{transform:translateX(-120%)}to{transform:translateX(400%)}}
+.footer{display:flex;justify-content:space-between;font-size:12px;margin:16px 0 5px}
+@media(max-width:900px){
+ .layout{grid-template-columns:1fr}
+ .sidebar{position:relative;height:auto;border-right:0;border-bottom:1px solid var(--line)}
+ .matrix{display:none}
+ .compress-grid{grid-template-columns:1fr}
+ .row{grid-template-columns:35px 1fr 120px}
+ .row .type,.row .size{display:none}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<aside class="sidebar">
+  <div class="brand">PDF TOOLS v4.0</div>
+  <div class="sub">ALL SYSTEMS OPERATIONAL</div>
+
+  <div class="box">
+    <div class="box-title">SYSTEM MENU</div>
+    <div class="menu-item" onclick="go('merge')">&gt; 1. MERGE FILES</div>
+    <div class="menu-item" onclick="go('compress')">&gt; 2. COMPRESS PDF</div>
+    <div class="menu-item" onclick="go('organize')">&gt; 3. ORGANIZE PAGES</div>
+  </div>
+
+  <div class="box">
+    <div class="box-title">SYSTEM INFO</div>
+    <div class="info">
+      STATUS: ONLINE<br>
+      TOOLS: 3 MODULES<br>
+      VERSION: 4.0.0<br>
+      ENCRYPTION: HTTPS<br>
+      PROCESSING: SERVER
+    </div>
+  </div>
+
+  <div class="matrix" id="matrix"></div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <span>● SECURE CONNECTION</span>
+    <span id="clock"></span>
+  </div>
+
+  <section class="module" id="merge">
+    <h2>1. MERGE FILES</h2>
+    <div class="desc">SUPPORTS: PDF + PNG + JPG/JPEG</div>
+
+    <form id="mergeForm" enctype="multipart/form-data">
+      <div class="drop" id="mergeDrop">
+        <div>
+          <div class="upload-symbol">⇧</div>
+          <b>DRAG & DROP FILES HERE</b><br>
+          OR CLICK TO SELECT FILES<br><br>
+          <small>PDF, PNG, JPG, JPEG</small>
+        </div>
+      </div>
+      <input id="mergeInput" name="files" type="file" multiple accept=".pdf,.png,.jpg,.jpeg">
+      <input id="fileOrder" name="file_order" type="hidden">
+
+      <div class="toolbar">
+        <button type="button" id="clearMerge">CLEAR ALL</button>
+        <button class="primary" type="submit">MERGE FILES</button>
+      </div>
+
+      <div class="table">
+        <div class="row head">
+          <div>#</div><div>FILENAME</div><div class="type">TYPE</div><div class="size">SIZE</div><div>ACTION</div>
+        </div>
+        <div id="mergeRows"><div class="empty">NO FILES SELECTED</div></div>
+      </div>
+    </form>
+    <div class="status" id="mergeStatus">&gt; READY</div>
+    <div class="progress" id="mergeProgress"><span></span></div>
+  </section>
+
+  <section class="module" id="compress">
+    <h2>2. COMPRESS PDF</h2>
+    <div class="desc">SELECT COMPRESSION LEVEL</div>
+
+    <form id="compressForm">
+      <div class="compress-grid">
+        <label class="choice">
+          <div><input type="radio" name="quality" value="printer"> HIGH QUALITY</div>
+          <small>Best quality<br>larger file size</small>
+        </label>
+        <label class="choice active">
+          <div><input type="radio" name="quality" value="ebook" checked> BALANCED</div>
+          <small>Good quality<br>good compression</small>
+        </label>
+        <label class="choice">
+          <div><input type="radio" name="quality" value="screen"> SMALLEST FILE</div>
+          <small>Smaller size<br>lower quality</small>
+        </label>
+      </div>
+
+      <div class="filebar">
+        <label class="filepick">
+          <span class="btn">CHOOSE PDF FILE</span>
+          <input id="compressInput" name="pdf" type="file" accept=".pdf">
+          <span class="filename" id="compressName">No file selected</span>
+        </label>
+        <button class="primary" type="submit">COMPRESS PDF</button>
+      </div>
+    </form>
+    <div class="status" id="compressStatus">&gt; READY</div>
+    <div class="progress" id="compressProgress"><span></span></div>
+  </section>
+
+  <section class="module" id="organize">
+    <h2>3. ORGANIZE PAGES</h2>
+    <div class="desc">REORDER, ROTATE, DUPLICATE OR DELETE PAGES</div>
+
+    <form id="organizeForm">
+      <div class="filebar">
+        <label class="filepick">
+          <span class="btn">CHOOSE PDF FILE</span>
+          <input id="organizeInput" name="pdf" type="file" accept=".pdf">
+          <span class="filename" id="organizeName">No file selected</span>
+        </label>
+        <button id="loadPages" type="button">LOAD PAGES</button>
+      </div>
+
+      <input type="hidden" id="operations" name="operations">
+
+      <div class="table" style="margin-top:14px">
+        <div class="row head">
+          <div>#</div><div>PAGE</div><div class="type">ROTATION</div><div class="size">SOURCE</div><div>ACTION</div>
+        </div>
+        <div id="pageRows"><div class="empty">LOAD A PDF FILE TO VIEW PAGES</div></div>
+      </div>
+
+      <div class="toolbar">
+        <button class="primary" type="submit">SAVE ORGANIZED PDF</button>
+      </div>
+    </form>
+    <div class="status" id="organizeStatus">&gt; READY</div>
+    <div class="progress" id="organizeProgress"><span></span></div>
+  </section>
+
+  <div class="footer">
+    <span>&gt;&gt; SYSTEM READY █</span>
+    <span>PDF TOOLS v4.0</span>
+  </div>
+</main>
+</div>
+
 <script>
-let mi=document.querySelector('#mi'),ml=document.querySelector('#ml'),fo=document.querySelector('#fo'),order=[];
-function rm(){ml.innerHTML='';order.forEach((i,p)=>{let d=document.createElement('div');d.className='row';d.innerHTML=`<span class=name>${p+1}. ${mi.files[i].name}</span><button type=button data-a=u data-p=${p}>↑</button><button type=button data-a=d data-p=${p}>↓</button>`;ml.appendChild(d)});fo.value=JSON.stringify(order)}
-mi.onchange=()=>{order=[...mi.files].map((_,i)=>i);rm()};ml.onclick=e=>{let b=e.target.closest('button');if(!b)return,p=+b.dataset.p;if(b.dataset.a=='u'&&p)[order[p-1],order[p]]=[order[p],order[p-1]];if(b.dataset.a=='d'&&p<order.length-1)[order[p+1],order[p]]=[order[p],order[p+1]];rm()}
-let pages=[],pl=document.querySelector('#pl'),ops=document.querySelector('#ops');
-function rp(){pl.innerHTML='';pages.forEach((x,p)=>{let d=document.createElement('div');d.className='row';d.innerHTML=`<span class=name>Page ${x.page+1}${x.rotation?' — '+x.rotation+'°':''}</span><button type=button data-a=u data-p=${p}>↑</button><button type=button data-a=d data-p=${p}>↓</button><button type=button data-a=r data-p=${p}>↻</button><button type=button data-a=c data-p=${p}>Copy</button><button type=button data-a=x data-p=${p}>X</button>`;pl.appendChild(d)});ops.value=JSON.stringify(pages)}
-document.querySelector('#load').onclick=async()=>{let f=document.querySelector('#oi').files[0];if(!f)return alert('Choose a PDF first.');let fd=new FormData();fd.append('pdf',f);let r=await fetch('/page-count',{method:'POST',body:fd}),j=await r.json();if(!r.ok)return alert(j.error);pages=Array.from({length:j.pages},(_,i)=>({page:i,rotation:0}));rp()}
-pl.onclick=e=>{let b=e.target.closest('button');if(!b)return,p=+b.dataset.p,a=b.dataset.a;if(a=='u'&&p)[pages[p-1],pages[p]]=[pages[p],pages[p-1]];if(a=='d'&&p<pages.length-1)[pages[p+1],pages[p]]=[pages[p],pages[p+1]];if(a=='r')pages[p].rotation=(pages[p].rotation+90)%360;if(a=='c')pages.splice(p+1,0,{...pages[p]});if(a=='x')pages.splice(p,1);rp()}
-document.querySelector('#of').onsubmit=e=>{if(!pages.length){e.preventDefault();alert('Load pages first.')}}
-</script></body></html>
+const $ = s => document.querySelector(s);
+
+function go(id){ document.getElementById(id).scrollIntoView({behavior:'smooth'}); }
+
+function setStatus(id,msg,type=''){
+  const el=document.getElementById(id);
+  el.textContent='> '+msg;
+  el.className='status '+type;
+}
+
+function progress(id,on){ document.getElementById(id).style.display=on?'block':'none'; }
+
+function formatBytes(bytes){
+  if(bytes===0) return '0 B';
+  const k=1024, units=['B','KB','MB','GB'];
+  const i=Math.floor(Math.log(bytes)/Math.log(k));
+  return (bytes/Math.pow(k,i)).toFixed(i?1:0)+' '+units[i];
+}
+
+function downloadBlob(blob, filename){
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=filename;
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),2000);
+}
+
+async function handleDownload(formData,url,statusId,progressId,filename){
+  try{
+    progress(progressId,true);
+    setStatus(statusId,'PROCESSING...');
+    const res=await fetch(url,{method:'POST',body:formData});
+    const type=res.headers.get('content-type')||'';
+
+    if(!res.ok){
+      if(type.includes('application/json')){
+        const data=await res.json();
+        throw new Error(data.error||'Request failed');
+      }
+      throw new Error(await res.text()||'Request failed');
+    }
+
+    const blob=await res.blob();
+    downloadBlob(blob,filename);
+    setStatus(statusId,'COMPLETE — DOWNLOAD STARTED','ok');
+  }catch(e){
+    setStatus(statusId,e.message,'error');
+  }finally{
+    progress(progressId,false);
+  }
+}
+
+/* MERGE */
+const mergeDrop=$('#mergeDrop'), mergeInput=$('#mergeInput'), mergeRows=$('#mergeRows'), fileOrder=$('#fileOrder');
+let mergeFiles=[], mergeOrder=[];
+
+mergeDrop.onclick=()=>mergeInput.click();
+['dragenter','dragover'].forEach(ev=>mergeDrop.addEventListener(ev,e=>{e.preventDefault();mergeDrop.classList.add('drag')}));
+['dragleave','drop'].forEach(ev=>mergeDrop.addEventListener(ev,e=>{e.preventDefault();mergeDrop.classList.remove('drag')}));
+mergeDrop.addEventListener('drop',e=>{
+  const valid=[...e.dataTransfer.files].filter(f=>/\.(pdf|png|jpg|jpeg)$/i.test(f.name));
+  mergeFiles=valid; mergeOrder=valid.map((_,i)=>i); renderMerge();
+});
+mergeInput.onchange=()=>{
+  mergeFiles=[...mergeInput.files];
+  mergeOrder=mergeFiles.map((_,i)=>i);
+  renderMerge();
+};
+
+function renderMerge(){
+  if(!mergeOrder.length){
+    mergeRows.innerHTML='<div class="empty">NO FILES SELECTED</div>';
+    fileOrder.value='[]'; return;
+  }
+  mergeRows.innerHTML='';
+  mergeOrder.forEach((idx,pos)=>{
+    const f=mergeFiles[idx];
+    const d=document.createElement('div');
+    d.className='row';
+    d.innerHTML=`<div>${pos+1}</div>
+      <div>${f.name}</div>
+      <div class="type">${f.name.split('.').pop().toUpperCase()}</div>
+      <div class="size">${formatBytes(f.size)}</div>
+      <div class="actions">
+        <button type="button" class="mini" data-a="up" data-p="${pos}">↑</button>
+        <button type="button" class="mini" data-a="down" data-p="${pos}">↓</button>
+        <button type="button" class="mini" data-a="del" data-p="${pos}">DEL</button>
+      </div>`;
+    mergeRows.appendChild(d);
+  });
+  fileOrder.value=JSON.stringify(mergeOrder);
+}
+mergeRows.onclick=e=>{
+  const b=e.target.closest('button'); if(!b)return;
+  const p=+b.dataset.p,a=b.dataset.a;
+  if(a==='up'&&p>0)[mergeOrder[p-1],mergeOrder[p]]=[mergeOrder[p],mergeOrder[p-1]];
+  if(a==='down'&&p<mergeOrder.length-1)[mergeOrder[p+1],mergeOrder[p]]=[mergeOrder[p],mergeOrder[p+1]];
+  if(a==='del')mergeOrder.splice(p,1);
+  renderMerge();
+};
+$('#clearMerge').onclick=()=>{mergeFiles=[];mergeOrder=[];mergeInput.value='';renderMerge();setStatus('mergeStatus','READY')};
+
+$('#mergeForm').onsubmit=async e=>{
+  e.preventDefault();
+  if(mergeOrder.length<2){setStatus('mergeStatus','SELECT AT LEAST 2 FILES','error');return;}
+  const fd=new FormData();
+  mergeFiles.forEach(f=>fd.append('files',f));
+  fd.append('file_order',JSON.stringify(mergeOrder));
+  await handleDownload(fd,'/merge','mergeStatus','mergeProgress','merged.pdf');
+};
+
+/* COMPRESS */
+const compressInput=$('#compressInput');
+compressInput.onchange=()=>$('#compressName').textContent=compressInput.files[0]?.name||'No file selected';
+document.querySelectorAll('.choice').forEach(c=>{
+  c.onclick=()=>{
+    document.querySelectorAll('.choice').forEach(x=>x.classList.remove('active'));
+    c.classList.add('active');
+  };
+});
+$('#compressForm').onsubmit=async e=>{
+  e.preventDefault();
+  if(!compressInput.files.length){setStatus('compressStatus','SELECT A PDF FILE','error');return;}
+  const fd=new FormData(e.target);
+  await handleDownload(fd,'/compress','compressStatus','compressProgress','compressed.pdf');
+};
+
+/* ORGANIZE */
+const organizeInput=$('#organizeInput'), pageRows=$('#pageRows'), ops=$('#operations');
+let pages=[];
+organizeInput.onchange=()=>{$('#organizeName').textContent=organizeInput.files[0]?.name||'No file selected';pages=[];renderPages()};
+
+$('#loadPages').onclick=async()=>{
+  if(!organizeInput.files.length){setStatus('organizeStatus','SELECT A PDF FILE','error');return;}
+  try{
+    progress('organizeProgress',true);
+    setStatus('organizeStatus','READING PAGE STRUCTURE...');
+    const fd=new FormData(); fd.append('pdf',organizeInput.files[0]);
+    const res=await fetch('/page-count',{method:'POST',body:fd});
+    const data=await res.json();
+    if(!res.ok)throw new Error(data.error);
+    pages=Array.from({length:data.pages},(_,i)=>({page:i,rotation:0}));
+    renderPages();
+    setStatus('organizeStatus',`${data.pages} PAGES LOADED`,'ok');
+  }catch(e){setStatus('organizeStatus',e.message,'error')}
+  finally{progress('organizeProgress',false)}
+};
+
+function renderPages(){
+  if(!pages.length){
+    pageRows.innerHTML='<div class="empty">LOAD A PDF FILE TO VIEW PAGES</div>';
+    ops.value='[]';return;
+  }
+  pageRows.innerHTML='';
+  pages.forEach((x,p)=>{
+    const d=document.createElement('div'); d.className='row';
+    d.innerHTML=`<div>${p+1}</div>
+      <div>PAGE ${x.page+1}</div>
+      <div class="type">${x.rotation}°</div>
+      <div class="size">PAGE ${x.page+1}</div>
+      <div class="actions">
+        <button type="button" class="mini" data-a="up" data-p="${p}">↑</button>
+        <button type="button" class="mini" data-a="down" data-p="${p}">↓</button>
+        <button type="button" class="mini" data-a="rot" data-p="${p}">ROT</button>
+        <button type="button" class="mini" data-a="copy" data-p="${p}">COPY</button>
+        <button type="button" class="mini" data-a="del" data-p="${p}">DEL</button>
+      </div>`;
+    pageRows.appendChild(d);
+  });
+  ops.value=JSON.stringify(pages);
+}
+pageRows.onclick=e=>{
+  const b=e.target.closest('button');if(!b)return;
+  const p=+b.dataset.p,a=b.dataset.a;
+  if(a==='up'&&p>0)[pages[p-1],pages[p]]=[pages[p],pages[p-1]];
+  if(a==='down'&&p<pages.length-1)[pages[p+1],pages[p]]=[pages[p],pages[p+1]];
+  if(a==='rot')pages[p].rotation=(pages[p].rotation+90)%360;
+  if(a==='copy')pages.splice(p+1,0,{...pages[p]});
+  if(a==='del')pages.splice(p,1);
+  renderPages();
+};
+$('#organizeForm').onsubmit=async e=>{
+  e.preventDefault();
+  if(!organizeInput.files.length){setStatus('organizeStatus','SELECT A PDF FILE','error');return;}
+  if(!pages.length){setStatus('organizeStatus','LOAD PAGES FIRST','error');return;}
+  const fd=new FormData();
+  fd.append('pdf',organizeInput.files[0]);
+  fd.append('operations',JSON.stringify(pages));
+  await handleDownload(fd,'/organize','organizeStatus','organizeProgress','organized.pdf');
+};
+
+/* CLOCK + MATRIX */
+function clock(){
+  $('#clock').textContent=new Date().toLocaleString();
+}
+setInterval(clock,1000);clock();
+
+const chars='01アイウエオカキクケコｱｲｳｴｵ<>[]{}$#@';
+let text='';
+for(let i=0;i<1200;i++) text+=chars[Math.floor(Math.random()*chars.length)]+(Math.random()>.82?'\n':' ');
+$('#matrix').textContent=text;
+</script>
+</body>
+</html>
