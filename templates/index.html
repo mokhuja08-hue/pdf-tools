@@ -1,120 +1,18 @@
-
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PDF Tools</title>
-<style>
-* { box-sizing: border-box; }
-body {
-    margin: 0; padding: 28px; background: #008080;
-    font-family: "MS Sans Serif", Tahoma, Arial, sans-serif;
-    color: #000; font-size: 14px;
-}
-.window {
-    width: 560px; max-width: 100%; margin: 20px auto; background: #c0c0c0;
-    border-top: 2px solid #fff; border-left: 2px solid #fff;
-    border-right: 2px solid #000; border-bottom: 2px solid #000;
-    box-shadow: 3px 3px 0 #404040;
-}
-.titlebar {
-    background: #000080; color: #fff; padding: 5px 7px; font-weight: bold;
-    display: flex; align-items: center; justify-content: space-between;
-}
-.title-buttons { display: flex; gap: 3px; }
-.title-button {
-    width: 18px; height: 18px; background: #c0c0c0; color: #000;
-    border-top: 2px solid #fff; border-left: 2px solid #fff;
-    border-right: 2px solid #404040; border-bottom: 2px solid #404040;
-    text-align: center; line-height: 12px; font-size: 11px;
-}
-.content { padding: 18px; }
-.group {
-    border-top: 2px solid #808080; border-left: 2px solid #808080;
-    border-right: 2px solid #fff; border-bottom: 2px solid #fff;
-    padding: 16px; margin-bottom: 16px;
-}
-.group-title { font-weight: bold; font-size: 16px; margin-bottom: 10px; }
-p { margin: 0 0 12px; }
-input[type=file] { width: 100%; margin-bottom: 14px; }
-.quality { margin: 4px 0 15px; }
-.quality label { display: block; margin: 7px 0; }
-button {
-    padding: 7px 18px; min-width: 135px; background: #c0c0c0;
-    border-top: 2px solid #fff; border-left: 2px solid #fff;
-    border-right: 2px solid #404040; border-bottom: 2px solid #404040;
-    font: inherit; cursor: pointer;
-}
-button:active {
-    border-top-color: #404040; border-left-color: #404040;
-    border-right-color: #fff; border-bottom-color: #fff;
-}
-.alert {
-    padding: 11px; margin-bottom: 16px; background: #ffffcc; border: 1px solid #000;
-}
-.status {
-    border-top: 2px solid #808080; border-left: 2px solid #808080;
-    border-right: 2px solid #fff; border-bottom: 2px solid #fff; padding: 5px 8px;
-}
-.footer { text-align: center; font-size: 12px; margin: 10px 0 2px; }
-.small { font-size: 12px; }
-@media(max-width:600px){ body{padding:10px}.window{margin:5px auto} }
-</style>
-</head>
-<body>
-<div class="window">
-    <div class="titlebar">
-        <span>PDF Tools</span>
-        <div class="title-buttons">
-            <div class="title-button">_</div>
-            <div class="title-button">□</div>
-            <div class="title-button">×</div>
-        </div>
-    </div>
-
-    <div class="content">
-        {% with messages = get_flashed_messages() %}
-          {% if messages %}
-            {% for message in messages %}
-              <div class="alert">{{ message }}</div>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
-
-        <div class="group">
-            <div class="group-title">Merge PDF Files</div>
-            <p>Select two or more PDF files.</p>
-            <form action="/merge" method="post" enctype="multipart/form-data">
-                <input type="file" name="pdfs" accept=".pdf,application/pdf" multiple required>
-                <br>
-                <button type="submit">Merge PDFs</button>
-            </form>
-        </div>
-
-        <div class="group">
-            <div class="group-title">Compress PDF</div>
-            <p>Select a PDF and choose the compression level.</p>
-            <form action="/compress" method="post" enctype="multipart/form-data">
-                <input type="file" name="pdf" accept=".pdf,application/pdf" required>
-
-                <div class="quality">
-                    <label><input type="radio" name="quality" value="printer"> High Quality</label>
-                    <label><input type="radio" name="quality" value="ebook" checked> Balanced (Recommended)</label>
-                    <label><input type="radio" name="quality" value="screen"> Smallest File</label>
-                </div>
-
-                <button type="submit">Compress PDF</button>
-            </form>
-            <p class="small" style="margin-top:12px">
-                Image-heavy and scanned PDFs usually get the biggest reduction.
-            </p>
-        </div>
-
-        <div class="status">Ready</div>
-        <div class="footer">PDF Tools v2.0</div>
-    </div>
-</div>
-</body>
-</html>
+<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>PDF Tools v3</title>
+<style>*{box-sizing:border-box}body{background:#008080;font:14px "MS Sans Serif",Tahoma,Arial;margin:0;padding:24px}.win{max-width:720px;margin:auto;background:#c0c0c0;border:2px outset #fff;box-shadow:3px 3px #000}.bar{background:#000080;color:#fff;font-weight:bold;padding:6px}.body{padding:16px}.box{border:2px inset #fff;padding:15px;margin-bottom:15px}h3{margin:0 0 10px}button{background:#c0c0c0;border:2px outset #fff;padding:6px 12px;font:inherit}button:active{border-style:inset}.list{background:#fff;border:2px inset #fff;min-height:45px;margin:8px 0;padding:4px}.row{display:flex;gap:5px;align-items:center;padding:4px;border-bottom:1px dotted #aaa}.name{flex:1}.msg{background:#ffffcc;border:1px solid;padding:9px;margin-bottom:12px}.small{font-size:12px}input[type=file]{width:100%;margin-bottom:8px}</style></head>
+<body><div class="win"><div class="bar">PDF Tools v3.0　　_ □ ×</div><div class="body">
+{% with m=get_flashed_messages() %}{% for x in m %}<div class="msg">{{x}}</div>{% endfor %}{% endwith %}
+<div class="box"><h3>1. Merge Files</h3><p>PDF + PNG + JPG/JPEG</p><form action="/merge" method="post" enctype="multipart/form-data"><input id="mi" name="files" type="file" multiple accept=".pdf,.png,.jpg,.jpeg" required><input id="fo" name="file_order" type="hidden"><div id="ml" class="list">Choose files.</div><button>Merge Files</button></form></div>
+<div class="box"><h3>2. Compress PDF</h3><form action="/compress" method="post" enctype="multipart/form-data"><input name="pdf" type="file" accept=".pdf" required><label><input type="radio" name="quality" value="printer"> High Quality</label><br><label><input type="radio" name="quality" value="ebook" checked> Balanced</label><br><label><input type="radio" name="quality" value="screen"> Smallest File</label><br><br><button>Compress PDF</button></form></div>
+<div class="box"><h3>3. Organize Pages</h3><p>Reorder, rotate, duplicate or delete pages.</p><form id="of" action="/organize" method="post" enctype="multipart/form-data"><input id="oi" name="pdf" type="file" accept=".pdf" required><input id="ops" name="operations" type="hidden"><button id="load" type="button">Load Pages</button><div id="pl" class="list">Choose a PDF, then Load Pages.</div><button>Save Organized PDF</button></form></div>
+<div class="small">PDF Tools v3.0</div></div></div>
+<script>
+let mi=document.querySelector('#mi'),ml=document.querySelector('#ml'),fo=document.querySelector('#fo'),order=[];
+function rm(){ml.innerHTML='';order.forEach((i,p)=>{let d=document.createElement('div');d.className='row';d.innerHTML=`<span class=name>${p+1}. ${mi.files[i].name}</span><button type=button data-a=u data-p=${p}>↑</button><button type=button data-a=d data-p=${p}>↓</button>`;ml.appendChild(d)});fo.value=JSON.stringify(order)}
+mi.onchange=()=>{order=[...mi.files].map((_,i)=>i);rm()};ml.onclick=e=>{let b=e.target.closest('button');if(!b)return,p=+b.dataset.p;if(b.dataset.a=='u'&&p)[order[p-1],order[p]]=[order[p],order[p-1]];if(b.dataset.a=='d'&&p<order.length-1)[order[p+1],order[p]]=[order[p],order[p+1]];rm()}
+let pages=[],pl=document.querySelector('#pl'),ops=document.querySelector('#ops');
+function rp(){pl.innerHTML='';pages.forEach((x,p)=>{let d=document.createElement('div');d.className='row';d.innerHTML=`<span class=name>Page ${x.page+1}${x.rotation?' — '+x.rotation+'°':''}</span><button type=button data-a=u data-p=${p}>↑</button><button type=button data-a=d data-p=${p}>↓</button><button type=button data-a=r data-p=${p}>↻</button><button type=button data-a=c data-p=${p}>Copy</button><button type=button data-a=x data-p=${p}>X</button>`;pl.appendChild(d)});ops.value=JSON.stringify(pages)}
+document.querySelector('#load').onclick=async()=>{let f=document.querySelector('#oi').files[0];if(!f)return alert('Choose a PDF first.');let fd=new FormData();fd.append('pdf',f);let r=await fetch('/page-count',{method:'POST',body:fd}),j=await r.json();if(!r.ok)return alert(j.error);pages=Array.from({length:j.pages},(_,i)=>({page:i,rotation:0}));rp()}
+pl.onclick=e=>{let b=e.target.closest('button');if(!b)return,p=+b.dataset.p,a=b.dataset.a;if(a=='u'&&p)[pages[p-1],pages[p]]=[pages[p],pages[p-1]];if(a=='d'&&p<pages.length-1)[pages[p+1],pages[p]]=[pages[p],pages[p+1]];if(a=='r')pages[p].rotation=(pages[p].rotation+90)%360;if(a=='c')pages.splice(p+1,0,{...pages[p]});if(a=='x')pages.splice(p,1);rp()}
+document.querySelector('#of').onsubmit=e=>{if(!pages.length){e.preventDefault();alert('Load pages first.')}}
+</script></body></html>
