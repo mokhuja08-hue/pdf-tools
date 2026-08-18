@@ -1,12 +1,13 @@
-# PDF Tools v4
+# PDF Tools v5
 
-Matrix/hacker-style PDF utility.
+Matrix-style PDF utility for Render.
 
-Features:
-- Merge PDF, PNG, JPG, JPEG
-- Drag/drop file selection
-- Reorder and remove files before merging
-- Ghostscript PDF compression
-- Organize pages: reorder, rotate, duplicate, delete
-- Async upload/process status in the UI
-- Render + Docker ready
+## v5 changes
+- Real continuously changing Python/code stream in the sidebar
+- Organize Pages has a + button to preview any page
+- PDF preview rendered in-browser with PDF.js
+- Only Up and Down buttons remain directly on each page row
+- Rotate, Copy and Delete apply to the selected preview page
+- Better organize-page layout
+- Merge PDF/PNG/JPG/JPEG
+- Ghostscript compression

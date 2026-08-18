@@ -1,11 +1,16 @@
 
-from flask import Flask, render_template, request, send_file, redirect, url_for, flash, after_this_request, jsonify
+from flask import Flask, render_template, request, send_file, jsonify, after_this_request
 from pypdf import PdfReader, PdfWriter
 from PIL import Image, ImageOps
-import tempfile, subprocess, shutil, os, io, json
+import tempfile
+import subprocess
+import shutil
+import os
+import io
+import json
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "pdf-tools-v4")
+app.secret_key = os.environ.get("SECRET_KEY", "pdf-tools-v5")
 app.config["MAX_CONTENT_LENGTH"] = 150 * 1024 * 1024
 
 ALLOWED = {".pdf", ".png", ".jpg", ".jpeg"}
@@ -69,6 +74,7 @@ def merge():
 
         with open(output, "wb") as out:
             writer.write(out)
+
         writer.close()
 
     except Exception as e:
@@ -80,7 +86,12 @@ def merge():
         clean(tmp)
         return response
 
-    return send_file(output, as_attachment=True, download_name="merged.pdf", mimetype="application/pdf")
+    return send_file(
+        output,
+        as_attachment=True,
+        download_name="merged.pdf",
+        mimetype="application/pdf"
+    )
 
 @app.route("/compress", methods=["POST"])
 def compress():
@@ -146,14 +157,17 @@ def compress():
         clean(tmp)
         return response
 
-    response = send_file(out, as_attachment=True, download_name="compressed.pdf", mimetype="application/pdf")
-    response.headers["X-Original-Size"] = str(original)
-    response.headers["X-Compressed-Size"] = str(compressed)
-    return response
+    return send_file(
+        out,
+        as_attachment=True,
+        download_name="compressed.pdf",
+        mimetype="application/pdf"
+    )
 
 @app.route("/page-count", methods=["POST"])
 def page_count():
     f = request.files.get("pdf")
+
     if not f or ext(f.filename) != ".pdf":
         return jsonify({"ok": False, "error": "Select a PDF."}), 400
 
@@ -166,11 +180,13 @@ def page_count():
 @app.route("/organize", methods=["POST"])
 def organize():
     f = request.files.get("pdf")
+
     if not f or ext(f.filename) != ".pdf":
         return jsonify({"ok": False, "error": "Select a PDF."}), 400
 
     try:
         operations = json.loads(request.form.get("operations", "[]"))
+
         if not operations:
             return jsonify({"ok": False, "error": "Load pages first."}), 400
 
@@ -193,6 +209,7 @@ def organize():
 
         with open(out, "wb") as fp:
             writer.write(fp)
+
         writer.close()
 
     except Exception as e:
@@ -200,6 +217,7 @@ def organize():
             clean(tmp)
         except Exception:
             pass
+
         return jsonify({"ok": False, "error": f"Organize failed: {e}"}), 500
 
     @after_this_request
@@ -207,7 +225,12 @@ def organize():
         clean(tmp)
         return response
 
-    return send_file(out, as_attachment=True, download_name="organized.pdf", mimetype="application/pdf")
+    return send_file(
+        out,
+        as_attachment=True,
+        download_name="organized.pdf",
+        mimetype="application/pdf"
+    )
 
 @app.errorhandler(413)
 def too_large(_):

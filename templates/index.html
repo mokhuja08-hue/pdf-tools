@@ -3,139 +3,181 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PDF Tools v4</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PDF Tools v5</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs" type="module"></script>
+
 <style>
 :root{
-  --bg:#020402;
-  --panel:#030803;
-  --line:#174d17;
-  --green:#52ff52;
-  --green2:#25c925;
-  --muted:#74a774;
-  --glow:0 0 8px rgba(82,255,82,.35);
+  --bg:#000;
+  --panel:#020702;
+  --panel2:#041004;
+  --line:#125a12;
+  --green:#4cff4c;
+  --green2:#20d820;
+  --dim:#72a572;
+  --danger:#ff6060;
+  --glow:0 0 8px rgba(76,255,76,.35);
 }
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;background:#000;color:var(--green)}
 body{
   font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
   background:
-    linear-gradient(rgba(0,20,0,.78),rgba(0,0,0,.96)),
-    repeating-linear-gradient(0deg,rgba(30,255,30,.025) 0,rgba(30,255,30,.025) 1px,transparent 1px,transparent 4px);
+    radial-gradient(circle at 20% 0%,rgba(0,40,0,.14),transparent 32%),
+    repeating-linear-gradient(0deg,rgba(0,255,0,.015) 0,rgba(0,255,0,.015) 1px,transparent 1px,transparent 4px),
+    #000;
 }
-.layout{display:grid;grid-template-columns:290px 1fr;min-height:100vh}
+.layout{display:grid;grid-template-columns:310px minmax(0,1fr);min-height:100vh}
 .sidebar{
   border-right:1px solid var(--line);
-  padding:22px 14px;
+  padding:18px 14px;
   position:sticky;top:0;height:100vh;
-  background:linear-gradient(180deg,#010501,#000);
-}
-.brand{font-size:28px;font-weight:800;letter-spacing:1px;text-shadow:var(--glow)}
-.sub{font-size:12px;margin-top:7px}
-.box{
-  border:1px solid var(--line);
-  margin-top:20px;
-  background:rgba(0,8,0,.6);
-}
-.box-title{padding:11px 14px;border-bottom:1px solid var(--line);font-weight:700}
-.menu-item{padding:13px 14px;border-bottom:1px solid rgba(23,77,23,.55);cursor:pointer}
-.menu-item:hover{background:#071207}
-.info{padding:14px;line-height:1.8;font-size:12px}
-.matrix{
-  height:220px;
+  background:#010301;
   overflow:hidden;
-  opacity:.32;
-  padding:10px;
-  font-size:11px;
-  line-height:1.15;
-  word-break:break-all;
 }
-.main{padding:24px}
+.brand{font-size:27px;font-weight:900;letter-spacing:1px;text-shadow:var(--glow)}
+.sub{font-size:12px;margin-top:7px}
+.box{border:1px solid var(--line);margin-top:18px;background:rgba(0,8,0,.72)}
+.box-title{padding:10px 12px;border-bottom:1px solid var(--line);font-weight:700}
+.menu-item{padding:12px;border-bottom:1px solid rgba(18,90,18,.45);cursor:pointer}
+.menu-item:hover{background:#061406}
+.info{padding:12px;line-height:1.75;font-size:12px}
+.live-code{
+  height:285px;
+  overflow:hidden;
+  padding:10px 10px 16px;
+  font-size:10.5px;
+  line-height:1.38;
+  white-space:pre;
+  color:#38d838;
+  position:relative;
+}
+.live-code:after{
+  content:"";
+  position:absolute;left:0;right:0;bottom:0;height:45px;
+  background:linear-gradient(transparent,#010301);
+}
+.code-line{animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:.1;transform:translateY(3px)}to{opacity:1;transform:none}}
+
+.main{padding:20px;min-width:0}
 .topbar{display:flex;justify-content:flex-end;gap:18px;font-size:12px;margin-bottom:12px}
-.module{
-  border:1px solid var(--line);
-  background:rgba(0,5,0,.76);
-  margin-bottom:16px;
-  padding:18px;
-}
-.module h2{margin:0 0 5px;font-size:21px;text-shadow:var(--glow)}
-.desc{font-size:12px;margin-bottom:15px;color:var(--green)}
+.module{border:1px solid var(--line);background:rgba(0,5,0,.8);margin-bottom:16px;padding:17px}
+.module h2{margin:0 0 6px;font-size:21px;text-shadow:var(--glow)}
+.desc{font-size:12px;margin-bottom:14px}
 .drop{
-  border:1px dashed var(--green2);
-  min-height:145px;
+  border:1px dashed var(--green2);min-height:135px;
   display:flex;align-items:center;justify-content:center;text-align:center;
-  cursor:pointer;
-  background:#000;
-  margin-bottom:14px;
+  cursor:pointer;background:#000;margin-bottom:12px
 }
-.drop.drag{background:#061506;box-shadow:inset 0 0 25px rgba(82,255,82,.12)}
-.upload-symbol{font-size:42px;line-height:1;margin-bottom:8px}
+.drop.drag{background:#061506;box-shadow:inset 0 0 25px rgba(76,255,76,.1)}
+.upload-symbol{font-size:40px;line-height:1;margin-bottom:8px}
 input[type=file]{display:none}
 button,.btn{
   background:#010701;color:var(--green);
-  border:1px solid var(--green2);
-  font:inherit;
-  padding:10px 14px;
-  cursor:pointer;
+  border:1px solid var(--green2);font:inherit;
+  padding:9px 12px;cursor:pointer
 }
-button:hover,.btn:hover{background:#0b210b;box-shadow:var(--glow)}
-.primary{background:var(--green2);color:#001400;font-weight:800}
+button:hover,.btn:hover{background:#0a200a;box-shadow:var(--glow)}
+.primary{background:var(--green2);color:#001500;font-weight:900}
 .primary:hover{background:var(--green)}
 .toolbar{display:flex;justify-content:flex-end;gap:8px;margin:10px 0}
-.table{
-  border:1px solid var(--line);
-  min-height:70px;
-}
+.table{border:1px solid var(--line);min-height:68px;overflow:hidden}
 .row{
   display:grid;
-  grid-template-columns:45px minmax(180px,1fr) 100px 100px 175px;
-  gap:6px;
-  align-items:center;
-  padding:9px 10px;
-  border-bottom:1px solid rgba(23,77,23,.65);
-  font-size:12px;
+  grid-template-columns:42px minmax(150px,1fr) 95px 95px 126px;
+  gap:6px;align-items:center;
+  padding:8px 9px;border-bottom:1px solid rgba(18,90,18,.55);font-size:12px
 }
-.head{background:#061006;font-weight:700}
+.head{background:#061006;font-weight:800}
 .row:last-child{border-bottom:0}
-.empty{padding:22px;text-align:center;color:var(--muted);font-size:12px}
-.actions{display:flex;gap:5px}
-.mini{padding:5px 8px}
-.compress-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:15px}
-.choice{border:1px solid var(--line);padding:15px;cursor:pointer;min-height:98px}
+.empty{padding:20px;text-align:center;color:var(--dim);font-size:12px}
+.actions{display:flex;gap:5px;justify-content:flex-end}
+.mini{padding:5px 8px;min-width:34px}
+.compress-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.choice{border:1px solid var(--line);padding:14px;cursor:pointer;min-height:90px}
 .choice.active{border-color:var(--green);background:#071407;box-shadow:var(--glow)}
-.choice input{margin-right:10px}
+.choice input{margin-right:8px}
 .filebar{display:flex;gap:10px;align-items:center}
 .filepick{flex:1;border:1px solid var(--line);min-height:44px;display:flex;align-items:center;padding:6px}
-.filename{margin-left:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.status{
-  margin-top:14px;
-  border:1px solid var(--line);
-  padding:10px 12px;
-  font-size:12px;
-  min-height:38px;
-}
-.status.error{border-color:#8f3d3d;color:#ff7777}
+.filename{margin-left:12px;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.status{margin-top:12px;border:1px solid var(--line);padding:9px 11px;font-size:12px;min-height:36px}
+.status.error{border-color:#813737;color:var(--danger)}
 .status.ok{border-color:var(--green2)}
-.progress{height:3px;background:#062206;margin-top:8px;overflow:hidden;display:none}
+.progress{height:3px;background:#062206;margin-top:7px;overflow:hidden;display:none}
 .progress span{display:block;height:100%;width:35%;background:var(--green);animation:p 1.2s linear infinite}
 @keyframes p{from{transform:translateX(-120%)}to{transform:translateX(400%)}}
-.footer{display:flex;justify-content:space-between;font-size:12px;margin:16px 0 5px}
-@media(max-width:900px){
- .layout{grid-template-columns:1fr}
- .sidebar{position:relative;height:auto;border-right:0;border-bottom:1px solid var(--line)}
- .matrix{display:none}
- .compress-grid{grid-template-columns:1fr}
- .row{grid-template-columns:35px 1fr 120px}
- .row .type,.row .size{display:none}
+.footer{display:flex;justify-content:space-between;font-size:12px;margin:16px 0 4px}
+
+/* ORGANIZE V5 */
+.organize-workspace{
+  display:grid;
+  grid-template-columns:minmax(390px,44%) minmax(420px,56%);
+  gap:14px;
+  margin-top:14px;
+}
+.page-panel,.preview-panel{border:1px solid var(--line);background:#000;min-width:0}
+.panel-title{padding:9px 11px;border-bottom:1px solid var(--line);font-weight:800;font-size:12px}
+.page-scroll{max-height:540px;overflow:auto}
+.page-row{
+  display:grid;
+  grid-template-columns:38px minmax(90px,1fr) 72px 116px;
+  gap:6px;align-items:center;
+  padding:7px 8px;border-bottom:1px solid rgba(18,90,18,.52);
+  font-size:12px;
+}
+.page-row.selected{background:#0a230a}
+.page-actions{display:flex;gap:5px;justify-content:flex-end}
+.preview-btn{font-weight:900}
+.preview-body{
+  min-height:540px;
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+}
+.preview-toolbar{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:8px;border-bottom:1px solid var(--line);gap:8px
+}
+.preview-controls{display:flex;gap:5px}
+.canvas-wrap{
+  flex:1;min-height:430px;
+  display:flex;align-items:center;justify-content:center;
+  padding:16px;overflow:auto;background:#010201
+}
+#pdfCanvas{
+  max-width:100%;height:auto;
+  background:#fff;box-shadow:0 0 18px rgba(76,255,76,.12);
+}
+.preview-empty{color:var(--dim);font-size:12px;text-align:center}
+.secondary-actions{display:flex;gap:6px;justify-content:flex-end;padding:8px;border-top:1px solid var(--line)}
+.secondary-actions button{font-size:11px;padding:6px 8px}
+
+@media(max-width:1050px){
+  .layout{grid-template-columns:1fr}
+  .sidebar{position:relative;height:auto;border-right:0;border-bottom:1px solid var(--line)}
+  .live-code{height:180px}
+  .organize-workspace{grid-template-columns:1fr}
+}
+@media(max-width:700px){
+  .main{padding:9px}
+  .compress-grid{grid-template-columns:1fr}
+  .row{grid-template-columns:35px 1fr 110px}
+  .row .type,.row .size{display:none}
+  .filebar{align-items:stretch;flex-direction:column}
+  .page-row{grid-template-columns:35px 1fr 112px}
+  .page-row .rotation{display:none}
 }
 </style>
 </head>
+
 <body>
 <div class="layout">
-
 <aside class="sidebar">
-  <div class="brand">PDF TOOLS v4.0</div>
-  <div class="sub">ALL SYSTEMS OPERATIONAL</div>
+  <div class="brand">PDF TOOLS v5.0</div>
+  <div class="sub">>> ALL SYSTEMS OPERATIONAL</div>
 
   <div class="box">
     <div class="box-title">SYSTEM MENU</div>
@@ -149,18 +191,21 @@ button:hover,.btn:hover{background:#0b210b;box-shadow:var(--glow)}
     <div class="info">
       STATUS: ONLINE<br>
       TOOLS: 3 MODULES<br>
-      VERSION: 4.0.0<br>
+      VERSION: 5.0.0<br>
       ENCRYPTION: HTTPS<br>
       PROCESSING: SERVER
     </div>
   </div>
 
-  <div class="matrix" id="matrix"></div>
+  <div class="box">
+    <div class="box-title">LIVE CODE STREAM</div>
+    <div id="liveCode" class="live-code"></div>
+  </div>
 </aside>
 
 <main class="main">
   <div class="topbar">
-    <span>● SECURE CONNECTION</span>
+    <span>● SECURE CONNECTION ESTABLISHED</span>
     <span id="clock"></span>
   </div>
 
@@ -168,7 +213,7 @@ button:hover,.btn:hover{background:#0b210b;box-shadow:var(--glow)}
     <h2>1. MERGE FILES</h2>
     <div class="desc">SUPPORTS: PDF + PNG + JPG/JPEG</div>
 
-    <form id="mergeForm" enctype="multipart/form-data">
+    <form id="mergeForm">
       <div class="drop" id="mergeDrop">
         <div>
           <div class="upload-symbol">⇧</div>
@@ -177,8 +222,8 @@ button:hover,.btn:hover{background:#0b210b;box-shadow:var(--glow)}
           <small>PDF, PNG, JPG, JPEG</small>
         </div>
       </div>
-      <input id="mergeInput" name="files" type="file" multiple accept=".pdf,.png,.jpg,.jpeg">
-      <input id="fileOrder" name="file_order" type="hidden">
+
+      <input id="mergeInput" type="file" multiple accept=".pdf,.png,.jpg,.jpeg">
 
       <div class="toolbar">
         <button type="button" id="clearMerge">CLEAR ALL</button>
@@ -192,6 +237,7 @@ button:hover,.btn:hover{background:#0b210b;box-shadow:var(--glow)}
         <div id="mergeRows"><div class="empty">NO FILES SELECTED</div></div>
       </div>
     </form>
+
     <div class="status" id="mergeStatus">&gt; READY</div>
     <div class="progress" id="mergeProgress"><span></span></div>
   </section>
@@ -206,10 +252,12 @@ button:hover,.btn:hover{background:#0b210b;box-shadow:var(--glow)}
           <div><input type="radio" name="quality" value="printer"> HIGH QUALITY</div>
           <small>Best quality<br>larger file size</small>
         </label>
+
         <label class="choice active">
           <div><input type="radio" name="quality" value="ebook" checked> BALANCED</div>
           <small>Good quality<br>good compression</small>
         </label>
+
         <label class="choice">
           <div><input type="radio" name="quality" value="screen"> SMALLEST FILE</div>
           <small>Smaller size<br>lower quality</small>
@@ -225,131 +273,205 @@ button:hover,.btn:hover{background:#0b210b;box-shadow:var(--glow)}
         <button class="primary" type="submit">COMPRESS PDF</button>
       </div>
     </form>
+
     <div class="status" id="compressStatus">&gt; READY</div>
     <div class="progress" id="compressProgress"><span></span></div>
   </section>
 
   <section class="module" id="organize">
     <h2>3. ORGANIZE PAGES</h2>
-    <div class="desc">REORDER, ROTATE, DUPLICATE OR DELETE PAGES</div>
+    <div class="desc">REORDER PAGES + PREVIEW + OPTIONAL ROTATE / COPY / DELETE</div>
 
-    <form id="organizeForm">
-      <div class="filebar">
-        <label class="filepick">
-          <span class="btn">CHOOSE PDF FILE</span>
-          <input id="organizeInput" name="pdf" type="file" accept=".pdf">
-          <span class="filename" id="organizeName">No file selected</span>
-        </label>
-        <button id="loadPages" type="button">LOAD PAGES</button>
-      </div>
+    <div class="filebar">
+      <label class="filepick">
+        <span class="btn">CHOOSE PDF FILE</span>
+        <input id="organizeInput" type="file" accept=".pdf">
+        <span class="filename" id="organizeName">No file selected</span>
+      </label>
+      <button id="loadPages" type="button">LOAD PAGES</button>
+    </div>
 
-      <input type="hidden" id="operations" name="operations">
-
-      <div class="table" style="margin-top:14px">
-        <div class="row head">
-          <div>#</div><div>PAGE</div><div class="type">ROTATION</div><div class="size">SOURCE</div><div>ACTION</div>
+    <div class="organize-workspace">
+      <div class="page-panel">
+        <div class="panel-title">PAGES</div>
+        <div id="pageList" class="page-scroll">
+          <div class="empty">LOAD A PDF FILE TO VIEW PAGES</div>
         </div>
-        <div id="pageRows"><div class="empty">LOAD A PDF FILE TO VIEW PAGES</div></div>
       </div>
 
-      <div class="toolbar">
-        <button class="primary" type="submit">SAVE ORGANIZED PDF</button>
+      <div class="preview-panel">
+        <div class="panel-title" id="previewTitle">PREVIEW</div>
+
+        <div class="preview-body">
+          <div class="preview-toolbar">
+            <span id="previewMeta">NO PAGE SELECTED</span>
+            <div class="preview-controls">
+              <button type="button" id="zoomOut">−</button>
+              <button type="button" id="fitPreview">FIT</button>
+              <button type="button" id="zoomIn">+</button>
+            </div>
+          </div>
+
+          <div class="canvas-wrap" id="canvasWrap">
+            <div class="preview-empty" id="previewEmpty">
+              CLICK + ON A PAGE TO PREVIEW IT
+            </div>
+            <canvas id="pdfCanvas" style="display:none"></canvas>
+          </div>
+
+          <div class="secondary-actions">
+            <button type="button" id="rotateSelected">ROTATE</button>
+            <button type="button" id="copySelected">COPY</button>
+            <button type="button" id="deleteSelected">DELETE</button>
+          </div>
+        </div>
       </div>
-    </form>
+    </div>
+
+    <div class="toolbar">
+      <button class="primary" id="saveOrganized" type="button">SAVE ORGANIZED PDF</button>
+    </div>
+
     <div class="status" id="organizeStatus">&gt; READY</div>
     <div class="progress" id="organizeProgress"><span></span></div>
   </section>
 
   <div class="footer">
     <span>&gt;&gt; SYSTEM READY █</span>
-    <span>PDF TOOLS v4.0</span>
+    <span>PDF TOOLS v5.0</span>
   </div>
 </main>
 </div>
 
-<script>
+<script type="module">
+import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs";
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs";
+
 const $ = s => document.querySelector(s);
 
-function go(id){ document.getElementById(id).scrollIntoView({behavior:'smooth'}); }
+function go(id){ document.getElementById(id).scrollIntoView({behavior:"smooth"}); }
+window.go = go;
 
-function setStatus(id,msg,type=''){
+function setStatus(id,msg,type=""){
   const el=document.getElementById(id);
-  el.textContent='> '+msg;
-  el.className='status '+type;
+  el.textContent="> "+msg;
+  el.className="status "+type;
 }
-
-function progress(id,on){ document.getElementById(id).style.display=on?'block':'none'; }
-
+function progress(id,on){ document.getElementById(id).style.display=on?"block":"none"; }
 function formatBytes(bytes){
-  if(bytes===0) return '0 B';
-  const k=1024, units=['B','KB','MB','GB'];
-  const i=Math.floor(Math.log(bytes)/Math.log(k));
-  return (bytes/Math.pow(k,i)).toFixed(i?1:0)+' '+units[i];
+  if(bytes===0)return"0 B";
+  const k=1024,u=["B","KB","MB","GB"],i=Math.floor(Math.log(bytes)/Math.log(k));
+  return(bytes/Math.pow(k,i)).toFixed(i?1:0)+" "+u[i];
 }
-
-function downloadBlob(blob, filename){
+function downloadBlob(blob,name){
   const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;a.download=filename;
-  document.body.appendChild(a);a.click();a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url),2000);
+  const a=document.createElement("a");
+  a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),2500);
 }
-
-async function handleDownload(formData,url,statusId,progressId,filename){
+async function processDownload(fd,url,statusId,progressId,name){
   try{
     progress(progressId,true);
-    setStatus(statusId,'PROCESSING...');
-    const res=await fetch(url,{method:'POST',body:formData});
-    const type=res.headers.get('content-type')||'';
-
+    setStatus(statusId,"PROCESSING...");
+    const res=await fetch(url,{method:"POST",body:fd});
+    const type=res.headers.get("content-type")||"";
     if(!res.ok){
-      if(type.includes('application/json')){
-        const data=await res.json();
-        throw new Error(data.error||'Request failed');
+      if(type.includes("application/json")){
+        const d=await res.json();throw new Error(d.error||"Request failed");
       }
-      throw new Error(await res.text()||'Request failed');
+      throw new Error(await res.text()||"Request failed");
     }
-
     const blob=await res.blob();
-    downloadBlob(blob,filename);
-    setStatus(statusId,'COMPLETE — DOWNLOAD STARTED','ok');
+    downloadBlob(blob,name);
+    setStatus(statusId,"COMPLETE — DOWNLOAD STARTED","ok");
   }catch(e){
-    setStatus(statusId,e.message,'error');
+    setStatus(statusId,e.message,"error");
   }finally{
     progress(progressId,false);
   }
 }
 
+/* LIVE CODE STREAM */
+const codeSamples=[
+"from flask import Flask, request, send_file",
+"from pypdf import PdfReader, PdfWriter",
+"from PIL import Image, ImageOps",
+"import tempfile, subprocess, shutil, os",
+"app = Flask(__name__)",
+"app.config['MAX_CONTENT_LENGTH'] = 150 * 1024 * 1024",
+"def merge_documents(files):",
+"    writer = PdfWriter()",
+"    for file in files:",
+"        reader = PdfReader(file)",
+"        for page in reader.pages:",
+"            writer.add_page(page)",
+"    return writer",
+"def compress_pdf(source, target):",
+"    cmd = ['gs', '-sDEVICE=pdfwrite']",
+"    subprocess.run(cmd, timeout=180)",
+"@app.route('/organize', methods=['POST'])",
+"def organize_pages():",
+"    operations = request.form.get('operations')",
+"    reader = PdfReader(request.files['pdf'].stream)",
+"    writer = PdfWriter()",
+"    return send_file(output)",
+"// secure session initialized",
+"// stream checksum verified",
+"// pdf object map synchronized"
+];
+const liveCode=$("#liveCode");
+let codeCounter=0;
+function addCodeLine(){
+  const source=codeSamples[codeCounter%codeSamples.length];
+  const randomHex=Math.random().toString(16).slice(2,8);
+  const line=document.createElement("div");
+  line.className="code-line";
+  line.textContent=String(codeCounter+1).padStart(3,"0")+"  "+source+"  // "+randomHex;
+  liveCode.appendChild(line);
+  while(liveCode.children.length>20)liveCode.removeChild(liveCode.firstChild);
+  liveCode.scrollTop=liveCode.scrollHeight;
+  codeCounter++;
+}
+for(let i=0;i<15;i++)addCodeLine();
+setInterval(addCodeLine,650);
+
+/* CLOCK */
+function clock(){ $("#clock").textContent=new Date().toLocaleString(); }
+clock();setInterval(clock,1000);
+
 /* MERGE */
-const mergeDrop=$('#mergeDrop'), mergeInput=$('#mergeInput'), mergeRows=$('#mergeRows'), fileOrder=$('#fileOrder');
-let mergeFiles=[], mergeOrder=[];
+const mergeDrop=$("#mergeDrop"),mergeInput=$("#mergeInput"),mergeRows=$("#mergeRows");
+let mergeFiles=[],mergeOrder=[];
 
 mergeDrop.onclick=()=>mergeInput.click();
-['dragenter','dragover'].forEach(ev=>mergeDrop.addEventListener(ev,e=>{e.preventDefault();mergeDrop.classList.add('drag')}));
-['dragleave','drop'].forEach(ev=>mergeDrop.addEventListener(ev,e=>{e.preventDefault();mergeDrop.classList.remove('drag')}));
-mergeDrop.addEventListener('drop',e=>{
-  const valid=[...e.dataTransfer.files].filter(f=>/\.(pdf|png|jpg|jpeg)$/i.test(f.name));
-  mergeFiles=valid; mergeOrder=valid.map((_,i)=>i); renderMerge();
+["dragenter","dragover"].forEach(ev=>mergeDrop.addEventListener(ev,e=>{
+  e.preventDefault();mergeDrop.classList.add("drag");
+}));
+["dragleave","drop"].forEach(ev=>mergeDrop.addEventListener(ev,e=>{
+  e.preventDefault();mergeDrop.classList.remove("drag");
+}));
+mergeDrop.addEventListener("drop",e=>{
+  mergeFiles=[...e.dataTransfer.files].filter(f=>/\.(pdf|png|jpg|jpeg)$/i.test(f.name));
+  mergeOrder=mergeFiles.map((_,i)=>i);
+  renderMerge();
 });
 mergeInput.onchange=()=>{
   mergeFiles=[...mergeInput.files];
   mergeOrder=mergeFiles.map((_,i)=>i);
   renderMerge();
 };
-
 function renderMerge(){
   if(!mergeOrder.length){
-    mergeRows.innerHTML='<div class="empty">NO FILES SELECTED</div>';
-    fileOrder.value='[]'; return;
+    mergeRows.innerHTML='<div class="empty">NO FILES SELECTED</div>';return;
   }
-  mergeRows.innerHTML='';
+  mergeRows.innerHTML="";
   mergeOrder.forEach((idx,pos)=>{
-    const f=mergeFiles[idx];
-    const d=document.createElement('div');
-    d.className='row';
+    const f=mergeFiles[idx],d=document.createElement("div");
+    d.className="row";
     d.innerHTML=`<div>${pos+1}</div>
       <div>${f.name}</div>
-      <div class="type">${f.name.split('.').pop().toUpperCase()}</div>
+      <div class="type">${f.name.split(".").pop().toUpperCase()}</div>
       <div class="size">${formatBytes(f.size)}</div>
       <div class="actions">
         <button type="button" class="mini" data-a="up" data-p="${pos}">↑</button>
@@ -358,117 +480,194 @@ function renderMerge(){
       </div>`;
     mergeRows.appendChild(d);
   });
-  fileOrder.value=JSON.stringify(mergeOrder);
 }
 mergeRows.onclick=e=>{
-  const b=e.target.closest('button'); if(!b)return;
+  const b=e.target.closest("button");if(!b)return;
   const p=+b.dataset.p,a=b.dataset.a;
-  if(a==='up'&&p>0)[mergeOrder[p-1],mergeOrder[p]]=[mergeOrder[p],mergeOrder[p-1]];
-  if(a==='down'&&p<mergeOrder.length-1)[mergeOrder[p+1],mergeOrder[p]]=[mergeOrder[p],mergeOrder[p+1]];
-  if(a==='del')mergeOrder.splice(p,1);
+  if(a==="up"&&p>0)[mergeOrder[p-1],mergeOrder[p]]=[mergeOrder[p],mergeOrder[p-1]];
+  if(a==="down"&&p<mergeOrder.length-1)[mergeOrder[p+1],mergeOrder[p]]=[mergeOrder[p],mergeOrder[p+1]];
+  if(a==="del")mergeOrder.splice(p,1);
   renderMerge();
 };
-$('#clearMerge').onclick=()=>{mergeFiles=[];mergeOrder=[];mergeInput.value='';renderMerge();setStatus('mergeStatus','READY')};
-
-$('#mergeForm').onsubmit=async e=>{
+$("#clearMerge").onclick=()=>{
+  mergeFiles=[];mergeOrder=[];mergeInput.value="";renderMerge();setStatus("mergeStatus","READY");
+};
+$("#mergeForm").onsubmit=async e=>{
   e.preventDefault();
-  if(mergeOrder.length<2){setStatus('mergeStatus','SELECT AT LEAST 2 FILES','error');return;}
+  if(mergeOrder.length<2){setStatus("mergeStatus","SELECT AT LEAST 2 FILES","error");return;}
   const fd=new FormData();
-  mergeFiles.forEach(f=>fd.append('files',f));
-  fd.append('file_order',JSON.stringify(mergeOrder));
-  await handleDownload(fd,'/merge','mergeStatus','mergeProgress','merged.pdf');
+  mergeFiles.forEach(f=>fd.append("files",f));
+  fd.append("file_order",JSON.stringify(mergeOrder));
+  await processDownload(fd,"/merge","mergeStatus","mergeProgress","merged.pdf");
 };
 
 /* COMPRESS */
-const compressInput=$('#compressInput');
-compressInput.onchange=()=>$('#compressName').textContent=compressInput.files[0]?.name||'No file selected';
-document.querySelectorAll('.choice').forEach(c=>{
+const compressInput=$("#compressInput");
+compressInput.onchange=()=>$("#compressName").textContent=compressInput.files[0]?.name||"No file selected";
+document.querySelectorAll(".choice").forEach(c=>{
   c.onclick=()=>{
-    document.querySelectorAll('.choice').forEach(x=>x.classList.remove('active'));
-    c.classList.add('active');
+    document.querySelectorAll(".choice").forEach(x=>x.classList.remove("active"));
+    c.classList.add("active");
   };
 });
-$('#compressForm').onsubmit=async e=>{
+$("#compressForm").onsubmit=async e=>{
   e.preventDefault();
-  if(!compressInput.files.length){setStatus('compressStatus','SELECT A PDF FILE','error');return;}
-  const fd=new FormData(e.target);
-  await handleDownload(fd,'/compress','compressStatus','compressProgress','compressed.pdf');
+  if(!compressInput.files.length){setStatus("compressStatus","SELECT A PDF FILE","error");return;}
+  await processDownload(new FormData(e.target),"/compress","compressStatus","compressProgress","compressed.pdf");
 };
 
-/* ORGANIZE */
-const organizeInput=$('#organizeInput'), pageRows=$('#pageRows'), ops=$('#operations');
+/* ORGANIZE + PREVIEW */
+const organizeInput=$("#organizeInput"),pageList=$("#pageList"),canvas=$("#pdfCanvas"),ctx=canvas.getContext("2d");
 let pages=[];
-organizeInput.onchange=()=>{$('#organizeName').textContent=organizeInput.files[0]?.name||'No file selected';pages=[];renderPages()};
+let pdfDoc=null;
+let selectedOutputIndex=-1;
+let previewScale=1.1;
+let renderTask=null;
 
-$('#loadPages').onclick=async()=>{
-  if(!organizeInput.files.length){setStatus('organizeStatus','SELECT A PDF FILE','error');return;}
-  try{
-    progress('organizeProgress',true);
-    setStatus('organizeStatus','READING PAGE STRUCTURE...');
-    const fd=new FormData(); fd.append('pdf',organizeInput.files[0]);
-    const res=await fetch('/page-count',{method:'POST',body:fd});
-    const data=await res.json();
-    if(!res.ok)throw new Error(data.error);
-    pages=Array.from({length:data.pages},(_,i)=>({page:i,rotation:0}));
-    renderPages();
-    setStatus('organizeStatus',`${data.pages} PAGES LOADED`,'ok');
-  }catch(e){setStatus('organizeStatus',e.message,'error')}
-  finally{progress('organizeProgress',false)}
+organizeInput.onchange=()=>{
+  $("#organizeName").textContent=organizeInput.files[0]?.name||"No file selected";
+  pages=[];pdfDoc=null;selectedOutputIndex=-1;
+  renderPageList();
+  clearPreview();
 };
 
-function renderPages(){
-  if(!pages.length){
-    pageRows.innerHTML='<div class="empty">LOAD A PDF FILE TO VIEW PAGES</div>';
-    ops.value='[]';return;
+$("#loadPages").onclick=async()=>{
+  if(!organizeInput.files.length){
+    setStatus("organizeStatus","SELECT A PDF FILE","error");return;
   }
-  pageRows.innerHTML='';
-  pages.forEach((x,p)=>{
-    const d=document.createElement('div'); d.className='row';
-    d.innerHTML=`<div>${p+1}</div>
-      <div>PAGE ${x.page+1}</div>
-      <div class="type">${x.rotation}°</div>
-      <div class="size">PAGE ${x.page+1}</div>
-      <div class="actions">
-        <button type="button" class="mini" data-a="up" data-p="${p}">↑</button>
-        <button type="button" class="mini" data-a="down" data-p="${p}">↓</button>
-        <button type="button" class="mini" data-a="rot" data-p="${p}">ROT</button>
-        <button type="button" class="mini" data-a="copy" data-p="${p}">COPY</button>
-        <button type="button" class="mini" data-a="del" data-p="${p}">DEL</button>
+  try{
+    progress("organizeProgress",true);
+    setStatus("organizeStatus","LOADING PDF...");
+    const file=organizeInput.files[0];
+    const arrayBuffer=await file.arrayBuffer();
+    pdfDoc=await pdfjsLib.getDocument({data:arrayBuffer}).promise;
+    pages=Array.from({length:pdfDoc.numPages},(_,i)=>({page:i,rotation:0}));
+    selectedOutputIndex=0;
+    renderPageList();
+    await previewSelected();
+    setStatus("organizeStatus",`${pdfDoc.numPages} PAGES LOADED`,"ok");
+  }catch(e){
+    setStatus("organizeStatus","COULD NOT LOAD PDF: "+e.message,"error");
+  }finally{
+    progress("organizeProgress",false);
+  }
+};
+
+function renderPageList(){
+  if(!pages.length){
+    pageList.innerHTML='<div class="empty">LOAD A PDF FILE TO VIEW PAGES</div>';return;
+  }
+  pageList.innerHTML="";
+  pages.forEach((item,pos)=>{
+    const row=document.createElement("div");
+    row.className="page-row"+(pos===selectedOutputIndex?" selected":"");
+    row.innerHTML=`
+      <div>${pos+1}</div>
+      <div>PAGE ${item.page+1}</div>
+      <div class="rotation">${item.rotation}°</div>
+      <div class="page-actions">
+        <button type="button" class="mini" data-a="up" data-p="${pos}">↑</button>
+        <button type="button" class="mini" data-a="down" data-p="${pos}">↓</button>
+        <button type="button" class="mini preview-btn" data-a="preview" data-p="${pos}">+</button>
       </div>`;
-    pageRows.appendChild(d);
+    pageList.appendChild(row);
   });
-  ops.value=JSON.stringify(pages);
 }
-pageRows.onclick=e=>{
-  const b=e.target.closest('button');if(!b)return;
+
+pageList.onclick=async e=>{
+  const b=e.target.closest("button");if(!b)return;
   const p=+b.dataset.p,a=b.dataset.a;
-  if(a==='up'&&p>0)[pages[p-1],pages[p]]=[pages[p],pages[p-1]];
-  if(a==='down'&&p<pages.length-1)[pages[p+1],pages[p]]=[pages[p],pages[p+1]];
-  if(a==='rot')pages[p].rotation=(pages[p].rotation+90)%360;
-  if(a==='copy')pages.splice(p+1,0,{...pages[p]});
-  if(a==='del')pages.splice(p,1);
-  renderPages();
-};
-$('#organizeForm').onsubmit=async e=>{
-  e.preventDefault();
-  if(!organizeInput.files.length){setStatus('organizeStatus','SELECT A PDF FILE','error');return;}
-  if(!pages.length){setStatus('organizeStatus','LOAD PAGES FIRST','error');return;}
-  const fd=new FormData();
-  fd.append('pdf',organizeInput.files[0]);
-  fd.append('operations',JSON.stringify(pages));
-  await handleDownload(fd,'/organize','organizeStatus','organizeProgress','organized.pdf');
+
+  if(a==="up"&&p>0){
+    [pages[p-1],pages[p]]=[pages[p],pages[p-1]];
+    if(selectedOutputIndex===p)selectedOutputIndex=p-1;
+    else if(selectedOutputIndex===p-1)selectedOutputIndex=p;
+  }
+
+  if(a==="down"&&p<pages.length-1){
+    [pages[p+1],pages[p]]=[pages[p],pages[p+1]];
+    if(selectedOutputIndex===p)selectedOutputIndex=p+1;
+    else if(selectedOutputIndex===p+1)selectedOutputIndex=p;
+  }
+
+  if(a==="preview"){
+    selectedOutputIndex=p;
+    await previewSelected();
+  }
+
+  renderPageList();
 };
 
-/* CLOCK + MATRIX */
-function clock(){
-  $('#clock').textContent=new Date().toLocaleString();
+async function previewSelected(){
+  if(!pdfDoc||selectedOutputIndex<0||!pages[selectedOutputIndex]){
+    clearPreview();return;
+  }
+
+  const item=pages[selectedOutputIndex];
+  const page=await pdfDoc.getPage(item.page+1);
+  const viewport=page.getViewport({scale:previewScale,rotation:item.rotation});
+
+  canvas.width=viewport.width;
+  canvas.height=viewport.height;
+  canvas.style.display="block";
+  $("#previewEmpty").style.display="none";
+  $("#previewMeta").textContent=`OUTPUT ${selectedOutputIndex+1} / ${pages.length} — SOURCE PAGE ${item.page+1} — ${item.rotation}°`;
+  $("#previewTitle").textContent=`PREVIEW — PAGE ${item.page+1}`;
+
+  if(renderTask){
+    try{renderTask.cancel();}catch{}
+  }
+  renderTask=page.render({canvasContext:ctx,viewport});
+  try{await renderTask.promise;}catch(e){}
 }
-setInterval(clock,1000);clock();
 
-const chars='01アイウエオカキクケコｱｲｳｴｵ<>[]{}$#@';
-let text='';
-for(let i=0;i<1200;i++) text+=chars[Math.floor(Math.random()*chars.length)]+(Math.random()>.82?'\n':' ');
-$('#matrix').textContent=text;
+function clearPreview(){
+  canvas.style.display="none";
+  $("#previewEmpty").style.display="block";
+  $("#previewMeta").textContent="NO PAGE SELECTED";
+  $("#previewTitle").textContent="PREVIEW";
+}
+
+$("#zoomIn").onclick=async()=>{previewScale=Math.min(2.4,previewScale+.2);await previewSelected();};
+$("#zoomOut").onclick=async()=>{previewScale=Math.max(.45,previewScale-.2);await previewSelected();};
+$("#fitPreview").onclick=async()=>{
+  if(!pdfDoc||selectedOutputIndex<0)return;
+  const item=pages[selectedOutputIndex],page=await pdfDoc.getPage(item.page+1);
+  const raw=page.getViewport({scale:1,rotation:item.rotation});
+  const wrap=$("#canvasWrap");
+  previewScale=Math.max(.35,Math.min((wrap.clientWidth-32)/raw.width,(wrap.clientHeight-32)/raw.height));
+  await previewSelected();
+};
+
+$("#rotateSelected").onclick=async()=>{
+  if(selectedOutputIndex<0)return;
+  pages[selectedOutputIndex].rotation=(pages[selectedOutputIndex].rotation+90)%360;
+  renderPageList();await previewSelected();
+};
+
+$("#copySelected").onclick=async()=>{
+  if(selectedOutputIndex<0)return;
+  pages.splice(selectedOutputIndex+1,0,{...pages[selectedOutputIndex]});
+  selectedOutputIndex++;
+  renderPageList();await previewSelected();
+};
+
+$("#deleteSelected").onclick=async()=>{
+  if(selectedOutputIndex<0)return;
+  pages.splice(selectedOutputIndex,1);
+  if(!pages.length){selectedOutputIndex=-1;renderPageList();clearPreview();return;}
+  if(selectedOutputIndex>=pages.length)selectedOutputIndex=pages.length-1;
+  renderPageList();await previewSelected();
+};
+
+$("#saveOrganized").onclick=async()=>{
+  if(!organizeInput.files.length){setStatus("organizeStatus","SELECT A PDF FILE","error");return;}
+  if(!pages.length){setStatus("organizeStatus","LOAD PAGES FIRST","error");return;}
+  const fd=new FormData();
+  fd.append("pdf",organizeInput.files[0]);
+  fd.append("operations",JSON.stringify(pages));
+  await processDownload(fd,"/organize","organizeStatus","organizeProgress","organized.pdf");
+};
 </script>
 </body>
 </html>
